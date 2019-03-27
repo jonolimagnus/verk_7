@@ -3,22 +3,25 @@ from flask import json
 from datetime import datetime
 from flask import render_template
 import pymysql.cursors
+import pymysql
 import os
 import urllib.request
 
-conn = pymysql.connect(user='kennitala',password='mypassword',host='tsutst.tskoli.is',database='')
+conn = pymysql.connect(user='2611982589',port=3306,password='mypassword',host='tsuts.tskoli.is',database='2611982589_verk7_user')
 
 app = Flask(__name__)
+app.secrete_key= os.urandom(16)
+print(os.urandom(16))
 
 @app.route("/", methods=['GET','POST'])
 def index():
     if request.method == 'POST':
-        userDetais = request.form
-        user = userDetails['user']
+        userDetails = request.form
+        userID = userDetails['userID']
         email = userDetails['email']
         name = userDetails['name']
         cur = conn.cursor()
-        cur.execute('INSERT INTO database.user(user, email, name), VALUES(%s,%s,%s)',(user,name,email))
+        cur.execute('INSERT INTO 2611982589_verk7_user.users(userID, email, name), VALUES(%s,%s,%s)',(userID,name,email))
         cur.commit()
         cur.close()
         return redirect('/users')
@@ -28,15 +31,58 @@ def index():
         return redirect('/error')
     return render_template("index.html")
 
+@app.route('/nyskra',methods=['GET','POST'])
+def nyr():
+    error = None
+    if request.method == 'POST':
+        userDetails = request.form
+        userID = userDetails['userID']
+        nafn = userDetails['nafn']
+        email = userDetails['email']
+        lykil = userDetails['lykil']
+        try:
+            cur = conn.cursor()
+            cur.execute("INSERT INTO 2611982589_verk7_user.users(userID, nafn, email, lykil), VALUES(%s,%s,%s,%s)",(userID,nafn,email,lykil))
+            cur.commit()
+            cur.close()
+            flash('þú hefur verið skráður inn')
+            return redirect(url_for('/users'))
+        except pymysql.IntegrityError:
+            error = 'Notandi er þegar skráður með þessu nafni og/eða lykilorði'
+        
+    return render_template('index.html', error=error)
+
+@app.route('/login',methods = ['POST', 'GET'])
+def login():
+    error = None
+    if request.method == 'POST':
+        userID = request.form.get('user_ID')
+        lykil = request.form.get('user_lykil')
+         
+        conn = pymysql.connect(user='2611982589',password='mypassword',host='tsuts.tskoli.is',database='2611982589_verk7_user')
+        cur = conn.cursor()
+
+        cur.execute("select count(*) from 2611982589_verk7_user.users where userID=%s and lykil=%s",(userID,lykil))
+        result = cur.fetchone()
+        print(result)
+        if result[0] ==1:
+            cur.close()
+            conn.close()
+            flash('you were successfully logged in')
+            return render_template('users.tpl',user=user)
+        else:
+            error = 'innskráning mistókst - reyndu aftur'
+    return render_template('index.html', error=error)
+        
 @app.route('/users')
 def users():
-    cur == conn.cursor()
-    resultValue = cur.execute("select * from database.users")
-    if resultValue > 0
+    cur = conn.cursor()
+    resultValue = cur.execute("select * from users")
+    if resultValue > 0:
         userDetails = cur.fetchall()
-        return render_template('/users.html'userDetails=userDetails)
+        return render_template('/users.tpl',userDetails=userDetails)
 
-
+        
 #kóði fyrir verk_7
 """
 conn = sqlite3.connect('database.db')
@@ -50,30 +96,6 @@ conn.close()
 def new_student():
    return render_template('student.html')
 
-@app.route('/addrec',methods = ['POST', 'GET'])
-def addrec():
-   if request.method == 'POST':
-      try:
-         nm = request.form['nm']
-         addr = request.form['add']
-         city = request.form['city']
-         pin = request.form['pin']
-         
-         with sql.connect("database.db") as con:
-            cur = con.cursor()
-            
-            cur.execute("INSERT INTO students (name,addr,city,pin) 
-               VALUES (?,?,?,?)",(nm,addr,city,pin) )
-            
-            con.commit()
-            msg = "Record successfully added"
-      except:
-         con.rollback()
-         msg = "error in insert operation"
-      
-      finally:
-         return render_template("result.html",msg = msg)
-         con.close()
 
 @app.route('/test/list')
 def list():
