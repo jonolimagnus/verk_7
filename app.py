@@ -10,7 +10,7 @@ import urllib.request
 conn = pymysql.connect(user='2611982589',port=3306,password='mypassword',host='tsuts.tskoli.is',database='2611982589_verk7_user')
 
 app = Flask(__name__)
-app.secrete_key= os.urandom(16)
+app.secret_key= os.urandom(16)
 print(os.urandom(16))
 
 @app.route("/", methods=['GET','POST'])
@@ -21,8 +21,8 @@ def index():
         email = userDetails['email']
         name = userDetails['name']
         cur = conn.cursor()
-        cur.execute('INSERT INTO 2611982589_verk7_user.users(userID, email, name), VALUES(%s,%s,%s)',(userID,name,email))
-        cur.commit()
+        cur.execute("INSERT INTO 2611982589_verk7_user.users(userID, nafn, email, lykil) VALUES(%s,%s,%s,%s)",(userID,nafn,email,lykil))
+        conn.commit()
         cur.close()
         return redirect('/users')
 
@@ -42,11 +42,11 @@ def nyr():
         lykil = userDetails['lykil']
         try:
             cur = conn.cursor()
-            cur.execute("INSERT INTO 2611982589_verk7_user.users(userID, nafn, email, lykil), VALUES(%s,%s,%s,%s)",(userID,nafn,email,lykil))
-            cur.commit()
+            cur.execute("INSERT INTO 2611982589_verk7_user.users(userID, nafn, email, lykil) VALUES(%s,%s,%s,%s)",(userID,nafn,email,lykil))
+            conn.commit()
             cur.close()
             flash('þú hefur verið skráður inn')
-            return redirect(url_for('/users'))
+            return redirect(url_for('users'))
         except pymysql.IntegrityError:
             error = 'Notandi er þegar skráður með þessu nafni og/eða lykilorði'
         
@@ -56,8 +56,8 @@ def nyr():
 def login():
     error = None
     if request.method == 'POST':
-        userID = request.form.get('user_ID')
-        lykil = request.form.get('user_lykil')
+        userID = request.form.get('userID')
+        lykil = request.form.get('lykil')
          
         conn = pymysql.connect(user='2611982589',password='mypassword',host='tsuts.tskoli.is',database='2611982589_verk7_user')
         cur = conn.cursor()
@@ -65,7 +65,7 @@ def login():
         cur.execute("select count(*) from 2611982589_verk7_user.users where userID=%s and lykil=%s",(userID,lykil))
         result = cur.fetchone()
         print(result)
-        if result[0] ==1:
+        if result[0] == 1:
             cur.close()
             conn.close()
             flash('you were successfully logged in')
@@ -77,11 +77,31 @@ def login():
 @app.route('/users')
 def users():
     cur = conn.cursor()
-    resultValue = cur.execute("select * from users")
+    resultValue = cur.execute("select * from 2611982589_verk7_user.users")
     if resultValue > 0:
         userDetails = cur.fetchall()
         return render_template('/users.tpl',userDetails=userDetails)
 
+@app.route("admin")
+def admin():
+    if not session,get('logged_in'):
+        return render_template('index.html')
+    else:
+        try:
+            cur =conn.cursor()
+            resultValue = cur.execute("select * from 2611982589_verk7_user.users")
+            if resultValue > 0:
+                userDetails = cur.fetchall()
+                flash('velkomin')
+                return render_template('/users.tpl',userDetails=userDetails)
+        except pymysql.IntegrityError:
+            error = 'þú hefur ekki aðgang að þessari síðu'
+        return render_template('index.html')
+
+@app.route('/logout')
+def logout():
+    session['logged_in'] = False
+    return render_template('index.html')
         
 #kóði fyrir verk_7
 """

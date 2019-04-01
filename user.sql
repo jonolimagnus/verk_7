@@ -11,6 +11,8 @@ CREATE TABLE users(
     primary key (userID)
 );
 
-insert into users (userID, nafn, email, lykil) VALUES ('jói','jóimagnusson','jói@gmail.com', 'hallo');
+insert into users (userID, nafn, email, lykil) 
+VALUES 
+('jói','jóimagnusson','jói@gmail.com', 'hallo');
 SELECT * FROM users;
 DELETE FROM useres where user = 'admin';

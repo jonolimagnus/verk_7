@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
 </head>
 <body>
-    <p>velkominn á síððna {{ userID }}</p>
+    <p><strong>velkominn á síðuna {{ userID }}</stong></p>
     <table border = 1>
         {% for user in userDetails %}
         <tr>
