@@ -15,6 +15,12 @@ print(os.urandom(16))
 
 @app.route("/", methods=['GET','POST'])
 def index():
+    '''
+    if not session.get['logged_in']
+        return render_template('index.html')
+    else:
+        render_template('admin.tpl')
+    '''
     if request.method == 'POST':
         userDetails = request.form
         userID = userDetails['userID']
@@ -82,6 +88,7 @@ def users():
         userDetails = cur.fetchall()
         return render_template('/users.tpl',userDetails=userDetails)
 
+'''
 @app.route("admin")
 def admin():
     if not session,get('logged_in'):
@@ -102,8 +109,10 @@ def admin():
 def logout():
     session['logged_in'] = False
     return render_template('index.html')
-        
-#kóði fyrir verk_7
+'''
+
+
+#kóði fyrir verk_7 ignore
 """
 conn = sqlite3.connect('database.db')
 print "Opened database successfully";

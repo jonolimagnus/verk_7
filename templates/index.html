@@ -6,23 +6,31 @@
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
 </head>
 <body>
+    {% if error %}
+        <p class=error>villa <strong> {{ error }} </strong></p>
+    {% endif %}
     <p><strong>þú er ekki skráður inn</strong></p>
     <h3>Nýskráning</h3>
     <form method="POST" action="nyskra">
         <p>notanid <input type="text" name="userID" /></p>
-        <p>notendanafn <input type="text" name="nafn"/></p>
+        <p>nafn <input type="text" name="nafn"/></p>
         <p>Tölvupóstur <input type="email" name="email" /></p>
-        <p>lykilorð <input type="password" name="lykil" /></p>
+        <p>lykilorð <input type="text" name="lykil" /></p>
         <p><input type = 'submit' value = 'senda'/></p>
     </form>
 
+    {% if session['logged_in'] %}
+        you are logged in already!
+    {% else %}
+
     <h4>Innskráning</h4>
     <form action = "users" method = "POST">
-        <p><h3>Enter userID</h3></p>
+        <p><h3>sláu inn notendaID og lykilorð</h3></p>
         <p>notandaid <input type="text" name="userID"/></p>
-        <p>lykilorð <input type="password" name="lykil" /></p>
+        <p>lykilorð <input type="text" name="lykil" /></p>
         <p><input type = 'submit' value = 'Login'/></p>
        
     </form>
+    {% endif %}
 </body>
 </html>
