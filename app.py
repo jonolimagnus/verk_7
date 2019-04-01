@@ -75,7 +75,7 @@ def login():
             cur.close()
             conn.close()
             flash('you were successfully logged in')
-            return render_template('users.tpl',user=user)
+            return redirect(url_for('users'))
         else:
             error = 'innskráning mistókst - reyndu aftur'
     return render_template('index.html', error=error)
